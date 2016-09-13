@@ -22,6 +22,22 @@ const GLchar* vertexShaderSource = "#version 330 core\n"
 "{\n"
 "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
 "}\0";
+
+const GLchar* vertexShaderChange = "#version 330 core\n"
+"layout (location = 0) in vec3 position;\n"
+"void main()\n"
+"{\n"
+"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+"}\0";
+
+const GLchar* fragmentShaderChange = "#version 330 core\n"
+"out vec4 color;\n"
+"uniform vec4 ourColor;\n"
+"void main()\n"
+"{\n"
+"color = ourColor;\n"
+"}\n\0";
+
 const GLchar* fragmentShaderSource = "#version 330 core\n"
 "out vec4 color;\n"
 "void main()\n"
@@ -90,12 +106,16 @@ int main(int argc, const char * argv[] ) {
     
 // compile the shader
     
-    GLuint vertexShader;
+    GLuint vertexShader,vertexChange;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    vertexChange = glCreateShader(GL_VERTEX_SHADER);
     
 //Next we attach the shader source code to the shader object and compile the shader:
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
+    
+    glShaderSource(vertexChange, 1, &vertexShaderChange, NULL);
+    glCompileShader(vertexChange);
     
 //check if the complication is sucessful
     GLint success;
@@ -109,7 +129,7 @@ int main(int argc, const char * argv[] ) {
     }
  
 //compile the fragmentShader
-    GLuint fragmentShader,fragmentShader2;
+    GLuint fragmentShader,fragmentShader2,fragmentChange;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader,1,&fragmentShaderSource,NULL);
     glCompileShader(fragmentShader);
@@ -118,12 +138,19 @@ int main(int argc, const char * argv[] ) {
     glShaderSource(fragmentShader2,1,&fragmentShaderSource2,NULL);
     glCompileShader(fragmentShader2);
     
+    fragmentChange = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentChange,1,&fragmentShaderChange,NULL);
+    glCompileShader(fragmentChange);
+    
+    
     
 // Shader Program
     
-    GLuint shaderProgram,shaderProgram2;
+    GLuint shaderProgram,shaderProgram2,shaderChange;
     shaderProgram = glCreateProgram();
     shaderProgram2 = glCreateProgram();
+    shaderChange = glCreateProgram();
+    
     
 // attch the shader to program created
     
@@ -134,6 +161,11 @@ int main(int argc, const char * argv[] ) {
     glAttachShader(shaderProgram2,vertexShader);
     glAttachShader(shaderProgram2,fragmentShader2);
     glLinkProgram(shaderProgram2);
+    
+    
+    glAttachShader(shaderChange,vertexChange);
+    glAttachShader(shaderChange,fragmentChange);
+    glLinkProgram(shaderChange);
     
 // check if the link is succesfful
     
@@ -147,10 +179,13 @@ int main(int argc, const char * argv[] ) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
     }
 //
-    glUseProgram(shaderProgram);
+    
 // we can delete them after the link
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(vertexChange);
+    glDeleteShader(fragmentChange);
+    
 
     
 // Specified how OpenGl should interprate the vertex data
@@ -218,11 +253,18 @@ int main(int argc, const char * argv[] ) {
         glClear(GL_COLOR_BUFFER_BIT);
         
         // Draw our first triangle
-        glUseProgram(shaderProgram);
+        glUseProgram(shaderChange);
+        
+        // Update the uniform color
+        GLfloat timeValue = glfwGetTime();
+        GLfloat greenValue = (sin(timeValue) / 2) + 0.5;
+        GLint vertexColorLocation = glGetUniformLocation(shaderChange, "ourColor");
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        
+        
         glBindVertexArray(VAO);
          glDrawArrays(GL_TRIANGLES, 0, 3);
         
-        glUseProgram(shaderProgram2);
         glBindVertexArray(VAO2);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         

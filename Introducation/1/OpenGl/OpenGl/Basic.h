@@ -12,6 +12,7 @@
 #include <GLFW/glfw3.h>
 #include <GLUT/glut.h>
 #include <iostream>
+#include <cmath>
 
 
 #endif /* Basic_h */
