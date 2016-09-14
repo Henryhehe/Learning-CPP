@@ -167,6 +167,11 @@ int main(int argc, const char * argv[] ) {
         1, 2, 3    // Second Triangle
     };
     
+    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 trans;
+    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    vec = trans * vec;
+    cout << vec.x << vec.y << vec.z << endl;
     
     GLuint VBO, VAO,EBO;
     
