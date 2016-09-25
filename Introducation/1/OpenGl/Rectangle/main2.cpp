@@ -2,26 +2,48 @@
 //  main.cpp
 //  Rectangle
 //
-//  Created by Chuanheng He on 2016-09-12.
+//  Created by Chuanheng He on 2016-09-23.
+//  Student Number:250825763
+//  Email Address: che49@uwo.ca
 //  Copyright © 2016 Chuanheng He. All rights reserved.
-//
 
-//
-//  Rectangle.cpp
-//  OpenGl
-//
-//  Created by Chuanheng He on 2016-09-12.
-//  Copyright © 2016 Chuanheng He. All rights reserved.
-//
 #include "Basic.h"
 
 using namespace std;
+//declare functions and const parameters.
+//void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
+void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode);
+vector<glm::vec4> generateColor();
+const GLuint WIDTH = 640, HEIGHT = 640;
+const GLuint RECNUM = 15;
 
-//Shader language GLSL(OpenSL shading language, which is a vertex shader
-//ext we declare all the input vertex attributes in the vertex shader with the in keyword. Right now we only care about position data so we only need a single vertex attribute. GLSL has a vector datatype that contains 1 to 4 floats based on its postfix digit. Since each vertex has a 3D coordinate we create a vec3 input variable with the name position. We also specifically set the location of the input variable via layout (location = 0) and you'll later see that why we're going to need that location.
-// Function prototypes
-void key_callback2(GLFWwindow* window, int key, int scancode, int action, int mode);
-//const GLuint WIDTH = 800, HEIGHT = 600;
+void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
+    
+    // when a user presses the escape key, we set the windowShouldClose property to true
+    
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    
+}
+
+// generate rectangle numbers of random colors
+vector<glm::vec4> generateColor() {
+    random_device rd;
+    vector<glm::vec4> colors;
+    float r,g,b,z;
+    mt19937 gen(rd());
+    for(int n = 0 ; n < RECNUM ; ++n) {
+        r = (generate_canonical<float, 3>(gen));
+        g = (generate_canonical<float, 3>(gen));
+        b = (generate_canonical<float, 3>(gen));
+        z = (generate_canonical<float,3>(gen));
+    glm::vec4 color = glm::vec4(r,g,b,z);
+        colors.push_back(color);
+    }
+    return colors;
+}
+
 
 // Shaders
 const GLchar* vertexShaderSource1 = "#version 330 core\n"
@@ -32,22 +54,11 @@ const GLchar* vertexShaderSource1 = "#version 330 core\n"
 "}\0";
 const GLchar* fragmentShaderSource2 = "#version 330 core\n"
 "out vec4 color;\n"
+"uniform vec4 ourColor;\n"
 "void main()\n"
 "{\n"
-"color = vec4(0.3f, 0.1f, 0.1f, 1.0f);\n"
+"color = ourColor;\n"
 "}\n\0";
-
-void key_callback2(GLFWwindow* window, int key, int scancode,int action,int mode) {
-    
-    // when a user presses the escape key, we set the windowShouldClose property to true
-    
-    if(key == GLFW_KEY_0 && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-    
-    
-}
-
 
 int main(int argc, const char * argv[] ) {
     // setting up GLFW process
@@ -57,12 +68,12 @@ int main(int argc, const char * argv[] ) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    
-    
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Learning", nullptr, nullptr);
-    
-    glfwSetKeyCallback(window, key_callback2);
-    
+    // initialize the window with GLFW
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Assignment1", nullptr, nullptr);
+
+    //make the program listen to the key input
+    glfwSetKeyCallback(window, key_exit);
+    // Handle window not created successfully
     if(window == nullptr) {
         cout << "Failed to create a window" << endl;
         glfwTerminate();
@@ -70,38 +81,39 @@ int main(int argc, const char * argv[] ) {
     }
     
     glfwMakeContextCurrent(window);
-    
+
     // setting up the GLEW
-    
     glewInit();
-    
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK) {
-        
         cout << "Failed to initialize GLEW" << endl;
         return -1;
     }
     
+    //random colors vector
+    
+    vector<glm::vec4> colors = generateColor();
+    
+    for(auto i = colors.begin();i!=colors.end();++i) {
+        cout << i->x << i->y << i->z << i->w << endl;
+    }
+    
+    auto j = colors.begin();
+    
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
-    
     glViewport(0, 0, width, height);
     
-    
     // compile the shader
-    
     GLuint vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    
     //Next we attach the shader source code to the shader object and compile the shader:
     glShaderSource(vertexShader, 1, &vertexShaderSource1, NULL);
     glCompileShader(vertexShader);
-    
     //check if the complication is sucessful
     GLint success;
     GLchar infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    
     if(!success)
     {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
@@ -113,20 +125,15 @@ int main(int argc, const char * argv[] ) {
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader,1,&fragmentShaderSource2,NULL);
     glCompileShader(fragmentShader);
-    
     // Shader Program
-    
     GLuint shaderProgram;
     shaderProgram = glCreateProgram();
-    
     // attch the shader to program created
-    
     glAttachShader(shaderProgram,vertexShader);
     glAttachShader(shaderProgram,fragmentShader);
     glLinkProgram(shaderProgram);
     
     // check if the link is succesfful
-    
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if(!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
@@ -174,9 +181,7 @@ int main(int argc, const char * argv[] ) {
     cout << vec.x << vec.y << vec.z << endl;
     
     GLuint VBO, VAO,EBO;
-    
     glGenVertexArrays(1, &VAO);
-    
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
     // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
@@ -196,18 +201,19 @@ int main(int argc, const char * argv[] ) {
     
     glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs)
     
-    
+    //This is the gameloop
     
     while(!glfwWindowShouldClose(window)) {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
-        
         //rendering commands here
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+        //test random color
+        GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
         // Draw our first rectangle
         glUseProgram(shaderProgram);
+        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -219,7 +225,6 @@ int main(int argc, const char * argv[] ) {
     glDeleteBuffers(1, &VBO);
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
-    
     
     return 0;
 }
