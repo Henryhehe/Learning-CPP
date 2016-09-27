@@ -12,11 +12,69 @@
 using namespace std;
 //declare functions and const parameters.
 //void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
+
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode);
+void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
+void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors);
 vector<glm::vec4> generateColor();
+
+
+validTriangle generateTriangle() {
+    
+    // setting up the random generator
+    // actually need to generate point as vectors form
+    random_device rd;
+    mt19937 gen(rd());
+    // a valid triangle
+    float validX =  (generate_canonical<float, 3>(gen));
+    float validY =  (generate_canonical<float, 3>(gen));
+    float validZ = sqrt(pow(validX,2)+ pow(validY,2));
+    // create a valid triangle
+    validTriangle s;
+  
+    s.x = glm::vec3(validX,0.0f,0.0f);
+    s.y = glm::vec3(0.0f,validY,0.0f);
+    s.z = glm::vec3(0.0f,0.0f,validZ);
+    return s;
+};
+
+
+
+// this method will generate a random rectangle which is then stored in the data structure defined
+// in validRectangle
+validRectangle generateRectanle() {
+    // setting up the random generator
+    // actually need to generate point as vectors form
+    random_device rd;
+    mt19937 gen(rd());
+    // generate a centre point randomly in the within given range..
+    float centreX = (generate_canonical<float, 3>(gen)) - 1;
+    float centreY = (generate_canonical<float, 3>(gen)) - 1;
+    float height =  (generate_canonical<float, 3>(gen));
+    float width =   (generate_canonical<float, 3>(gen));
+    float halfH = height/2;
+    float halfW = width/2;
+    glm::vec3 centre = glm::vec3(centreX,centreY,0.0f);
+    validRectangle rec;
+    // the centre of the rectangle,height and width
+    rec.centre = centre;
+    rec.height = height;
+    rec.width = width;
+    //Top Right
+    rec.firstPoint = glm::vec3(centreX + halfW,centreY+halfH,0.0f);
+    //Bottom Right
+    rec.secondPoint = glm::vec3(centreX + halfW,centreY-halfH,0.0f);
+    //Bottom Left
+    rec.thirdPoint = glm::vec3(centreX - halfW,centreY-halfH,0.0f);
+    //Top Left
+    rec.fouthPoint = glm::vec3(centreX - halfW,centreY+halfH,0.0f);
+    return rec;
+};
+
+
 const GLuint WIDTH = 640, HEIGHT = 640;
 const GLuint RECNUM = 15;
-
+// data structure to store valid rectangle coordinates
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     
     // when a user presses the escape key, we set the windowShouldClose property to true
@@ -24,8 +82,9 @@ void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    
 }
+
+
 
 // generate rectangle numbers of random colors
 vector<glm::vec4> generateColor() {
@@ -37,7 +96,7 @@ vector<glm::vec4> generateColor() {
         r = (generate_canonical<float, 3>(gen));
         g = (generate_canonical<float, 3>(gen));
         b = (generate_canonical<float, 3>(gen));
-        z = (generate_canonical<float,3>(gen));
+        z = (generate_canonical<float, 3>(gen));
     glm::vec4 color = glm::vec4(r,g,b,z);
         colors.push_back(color);
     }
@@ -73,6 +132,7 @@ int main(int argc, const char * argv[] ) {
 
     //make the program listen to the key input
     glfwSetKeyCallback(window, key_exit);
+
     // Handle window not created successfully
     if(window == nullptr) {
         cout << "Failed to create a window" << endl;
@@ -97,8 +157,15 @@ int main(int argc, const char * argv[] ) {
     for(auto i = colors.begin();i!=colors.end();++i) {
         cout << i->x << i->y << i->z << i->w << endl;
     }
-    
+    // test puporse for the gameloop
     auto j = colors.begin();
+    
+    // test case for the valid triangle case;
+    
+    validRectangle rec = generateRectanle();
+    validRectangle rec2 = generateRectanle();
+    
+    cout << "valid triangle sample" << rec.centre.x << rec.centre.y << rec.firstPoint.x << rec.firstPoint.y << "++" << rec.height<< rec.width<<endl;
     
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -163,17 +230,32 @@ int main(int argc, const char * argv[] ) {
     // Set up vertex data (and buffer(s)) and attribute pointers
     // use element buffer object
     // and use index drawing
-    GLfloat vertices[] = {
-        0.5f,  0.5f, 0.0f,  // Top Right
-        0.5f, -0.5f, 0.0f,  // Bottom Right
-        -0.5f, -0.5f, 0.0f,  // Bottom Left
-        -0.5f,  0.5f, 0.0f   // Top Left
+//    GLfloat vertices[] = {
+//        0.05f,  0.05f, 0.0f,  // Top Right
+//        0.05f, -0.05f, 0.0f,  // Bottom Right
+//        -0.05f, -0.05f, 0.0f,  // Bottom Left
+//        -0.05f,  0.05f, 0.0f   // Top Left
+//    };
+    
+//    GLfloat firstPoint = z.x;
+//    GLfloat secondPoint = z.y;
+//    GLfloat thirdPoint = z.z;
+    
+    
+    // using z as a random location variable
+    GLfloat vertices[] {
+       rec.firstPoint.x,rec.firstPoint.y,0.0f,
+        rec.secondPoint.x,rec.secondPoint.y,0.0f,
+        rec.thirdPoint.x,rec.thirdPoint.y,0.0f,
+        rec.fouthPoint.x, rec.fouthPoint.y,0.0f,
     };
+    
     GLuint indices[] = {  // Note that we start from 0!
         0, 1, 3,   // First Triangle
         1, 2, 3    // Second Triangle
     };
     
+    //testing glm transfomation
     glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
     glm::mat4 trans;
     trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
@@ -201,8 +283,7 @@ int main(int argc, const char * argv[] ) {
     
     glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs)
     
-    //This is the gameloop
-    
+    //This is the gameloop? or render loop?
     while(!glfwWindowShouldClose(window)) {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
@@ -213,6 +294,7 @@ int main(int argc, const char * argv[] ) {
         GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
         // Draw our first rectangle
         glUseProgram(shaderProgram);
+        //random color.
         glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -228,3 +310,35 @@ int main(int argc, const char * argv[] ) {
     
     return 0;
 }
+
+void key_start(GLFWwindow* window, int key, int scancode, int action, int mode) {
+    if(key== GLFW_KEY_S && action == GLFW_PRESS) {
+        while(!glfwWindowShouldClose(window)) {
+            
+            
+    }
+        glfwSwapBuffers(window);
+
+}
+}
+
+void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors){
+    // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
+    glfwPollEvents();
+    //rendering commands here
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    //test random color
+    GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
+    // Draw our first rectangle
+    glUseProgram(shaderProgram);
+    //random color.
+    auto j = colors.begin();
+    glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    // Swap the screen buffers
+}
+
+

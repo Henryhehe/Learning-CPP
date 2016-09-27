@@ -19,4 +19,21 @@
 #include <random>
 #include <vector>
 
+struct validTriangle {
+    glm::vec3 x;
+    glm::vec3 y;
+    glm::vec3 z;
+};
+
+struct validRectangle {
+    glm::vec3 centre;
+    float height;
+    float width;
+    glm::vec3 firstPoint;
+    glm::vec3 secondPoint;
+    glm::vec3 thirdPoint;
+    glm::vec3 fouthPoint;
+};
+
+
 #endif /* Basic_h */
