@@ -19,27 +19,6 @@ void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors);
 vector<glm::vec4> generateColor();
 
 
-validTriangle generateTriangle() {
-    
-    // setting up the random generator
-    // actually need to generate point as vectors form
-    random_device rd;
-    mt19937 gen(rd());
-    // a valid triangle
-    float validX =  (generate_canonical<float, 3>(gen));
-    float validY =  (generate_canonical<float, 3>(gen));
-    float validZ = sqrt(pow(validX,2)+ pow(validY,2));
-    // create a valid triangle
-    validTriangle s;
-  
-    s.x = glm::vec3(validX,0.0f,0.0f);
-    s.y = glm::vec3(0.0f,validY,0.0f);
-    s.z = glm::vec3(0.0f,0.0f,validZ);
-    return s;
-};
-
-
-
 // this method will generate a random rectangle which is then stored in the data structure defined
 // in validRectangle
 validRectangle generateRectanle() {
@@ -48,8 +27,8 @@ validRectangle generateRectanle() {
     random_device rd;
     mt19937 gen(rd());
     // generate a centre point randomly in the within given range..
-    float centreX = (generate_canonical<float, 3>(gen)) - 1;
-    float centreY = (generate_canonical<float, 3>(gen)) - 1;
+    float centreX = (generate_canonical<float, 3>(gen))*2 - 1;
+    float centreY = (generate_canonical<float, 3>(gen))*2 - 1;
     float height =  (generate_canonical<float, 3>(gen));
     float width =   (generate_canonical<float, 3>(gen));
     float halfH = height/2;
@@ -71,10 +50,10 @@ validRectangle generateRectanle() {
     return rec;
 };
 
-
+//setting up constants
 const GLuint WIDTH = 640, HEIGHT = 640;
 const GLuint RECNUM = 15;
-// data structure to store valid rectangle coordinates
+
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     
     // when a user presses the escape key, we set the windowShouldClose property to true
@@ -119,6 +98,7 @@ const GLchar* fragmentShaderSource2 = "#version 330 core\n"
 "color = ourColor;\n"
 "}\n\0";
 
+
 int main(int argc, const char * argv[] ) {
     // setting up GLFW process
     glfwInit();
@@ -160,12 +140,21 @@ int main(int argc, const char * argv[] ) {
     // test puporse for the gameloop
     auto j = colors.begin();
     
-    // test case for the valid triangle case;
+    // test case for the valid rectangle and store them in a vector;
     
-    validRectangle rec = generateRectanle();
-    validRectangle rec2 = generateRectanle();
+    vector<validRectangle> rectangles;
+    rectangles.push_back(generateRectanle());
+    for(int i = RECNUM;i>=0;--i) {
+        rectangles.push_back(generateRectanle());
+    }
+//    for(auto j = rectangles.begin(); j!=rectangles.end();++j) {
+//        cout << "this is all the rectangles" << j->firstPoint.x << j->firstPoint.y << endl;
+//    }
+//    
+    validRectangle rec = rectangles[0];
+    validRectangle rec2 = rectangles[1];
+
     
-    cout << "valid triangle sample" << rec.centre.x << rec.centre.y << rec.firstPoint.x << rec.firstPoint.y << "++" << rec.height<< rec.width<<endl;
     
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -213,18 +202,6 @@ int main(int argc, const char * argv[] ) {
     glDeleteShader(fragmentShader);
     
     
-    // Specified how OpenGl should interprate the vertex data
-    
-    //    // 0. Copy our vertices array in a buffer for OpenGL to use
-    //    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    //    // 1. Then set the vertex attributes pointers
-    //    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    //    glEnableVertexAttribArray(0);
-    //    // 2. Use our shader program when we want to render an object
-    //    glUseProgram(shaderProgram);
-    //    // 3. Now draw the object
-    //    someOpenGLFunctionThatDrawsOurTriangle();
     
     // VAO
     // Set up vertex data (and buffer(s)) and attribute pointers
@@ -237,53 +214,131 @@ int main(int argc, const char * argv[] ) {
 //        -0.05f,  0.05f, 0.0f   // Top Left
 //    };
     
-//    GLfloat firstPoint = z.x;
-//    GLfloat secondPoint = z.y;
-//    GLfloat thirdPoint = z.z;
+//    GLfloat firstvertices[] {
+//       rec.firstPoint.x,rec.firstPoint.y,0.0f,
+//        rec.secondPoint.x,rec.secondPoint.y,0.0f,
+//        rec.thirdPoint.x,rec.thirdPoint.y,0.0f,
+//        rec.fouthPoint.x, rec.fouthPoint.y,0.0f,
+//    };
+//    
+//    
+//    GLfloat secondvertices[] {
+//        rec2.firstPoint.x,rec2.firstPoint.y,0.0f,
+//        rec2.secondPoint.x,rec2.secondPoint.y,0.0f,
+//        rec2.thirdPoint.x,rec2.thirdPoint.y,0.0f,
+//        rec2.fouthPoint.x, rec2.fouthPoint.y,0.0f,
+//    };
+//
+
+        GLfloat firstvertices[] {
+           rec.firstPoint.x,rec.firstPoint.y,0.0f,
+            rec.secondPoint.x,rec.secondPoint.y,0.0f,
+            rec.thirdPoint.x,rec.thirdPoint.y,0.0f,
+            rec.fouthPoint.x, rec.fouthPoint.y,0.0f,
+        };
     
     
-    // using z as a random location variable
-    GLfloat vertices[] {
-       rec.firstPoint.x,rec.firstPoint.y,0.0f,
-        rec.secondPoint.x,rec.secondPoint.y,0.0f,
-        rec.thirdPoint.x,rec.thirdPoint.y,0.0f,
-        rec.fouthPoint.x, rec.fouthPoint.y,0.0f,
-    };
+        GLfloat secondvertices[] {
+            rec2.firstPoint.x,rec2.firstPoint.y,0.0f,
+            rec2.secondPoint.x,rec2.secondPoint.y,0.0f,
+            rec2.thirdPoint.x,rec2.thirdPoint.y,0.0f,
+            rec2.fouthPoint.x, rec2.fouthPoint.y,0.0f,
+        };
+    
+//    
+//    GLfloat firstTriangle[] = {
+//        -0.9f, -0.5f, 0.0f,  // Left
+//        -0.0f, -0.5f, 0.0f,  // Right
+//        -0.45f, 0.5f, 0.0f,  // Top
+//    };
+//    GLfloat secondTriangle[] = {
+//        0.0f, -0.5f, 0.0f,  // Left
+//        0.9f, -0.5f, 0.0f,  // Right
+//        0.45f, 0.5f, 0.0f   // Top
+//    };
     
     GLuint indices[] = {  // Note that we start from 0!
         0, 1, 3,   // First Triangle
         1, 2, 3    // Second Triangle
     };
     
-    //testing glm transfomation
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans;
-    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-    vec = trans * vec;
-    cout << vec.x << vec.y << vec.z << endl;
-    
-    GLuint VBO, VAO,EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
-    glBindVertexArray(VAO);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // setting up objects
+    GLuint VBOs[2],VAOs[2],EBOs[2];
+    glGenVertexArrays(2,VAOs); // Generate multiple VAOs
+    glGenBuffers(2,VBOs);
+    glGenBuffers(2,EBOs);
+    //===========================
+    //First Rectangle
+    //===========================
+    glBindVertexArray(VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER,VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(firstvertices), firstvertices, GL_STATIC_DRAW);
+    //EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    // Call to enable the function
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
     glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    //===========================
+    //Second Rectangle
+    //===========================
+    glBindVertexArray(VAOs[1]);
+    glBindBuffer(GL_ARRAY_BUFFER,VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(secondvertices), secondvertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
     
-    glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs)
+    
+    //
+//    GLuint VBO, VAO,EBO;
+//    glGenVertexArrays(1, &VAO);
+//    glGenBuffers(1, &VBO);
+//    glGenBuffers(1, &EBO);
+//    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+//    glBindVertexArray(VAO);
+//    
+//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+//    
+//    GLuint EBO;
+//    
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+//    // Call to enable the function
+//    glEnableVertexAttribArray(0);
+//    
+//    glBindBuffer(GL_ARRAY_BUFFER, 0); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
+//    
+//    glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs)
     
     //This is the gameloop? or render loop?
+//    while(!glfwWindowShouldClose(window)) {
+//        // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
+//        glfwPollEvents();
+//        //rendering commands here
+//        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+//        glClear(GL_COLOR_BUFFER_BIT);
+//        //test random color
+//        GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
+//        // Draw our first rectangle
+//        glUseProgram(shaderProgram);
+//        //random color.
+//        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
+//        glBindVertexArray(VAO);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//        glBindVertexArray(0);
+//        // Swap the screen buffers
+//        glfwSwapBuffers(window); }
+//    
+    
+    
     while(!glfwWindowShouldClose(window)) {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
@@ -296,20 +351,50 @@ int main(int argc, const char * argv[] ) {
         glUseProgram(shaderProgram);
         //random color.
         glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-        glBindVertexArray(VAO);
+            j++;
+        
+        glBindVertexArray(VAOs[0]);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
+        glBindVertexArray(VAOs[1]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         // Swap the screen buffers
-        glfwSwapBuffers(window); }
+        glfwSwapBuffers(window);
+    }
+    
+    
+    
     
     // Properly de-allocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(2, VAOs);
+    glDeleteBuffers(2, VBOs);
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
-    
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//test starting method
 
 void key_start(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if(key== GLFW_KEY_S && action == GLFW_PRESS) {
