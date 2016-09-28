@@ -51,8 +51,8 @@ validRectangle generateRectanle() {
 };
 
 //setting up constants
-const GLuint WIDTH = 640, HEIGHT = 640;
-const GLuint RECNUM = 15;
+const GLuint WIDTH = 1280, HEIGHT = 1280;
+const GLuint RECNUM = 50;
 
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     
@@ -90,6 +90,14 @@ const GLchar* vertexShaderSource1 = "#version 330 core\n"
 "{\n"
 "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
 "}\0";
+
+const GLchar* vertexShaderSource2 = "#version 330 core\n"
+"layout (location = 0) in vec3 position;\n"
+"uniform mat4 transform;\n"
+"void main()\n"
+"{\n"
+"gl_Position = transform * vec4(position.x, position.y, position.z, 1.0);\n"
+"}\0";
 const GLchar* fragmentShaderSource2 = "#version 330 core\n"
 "out vec4 color;\n"
 "uniform vec4 ourColor;\n"
@@ -97,6 +105,16 @@ const GLchar* fragmentShaderSource2 = "#version 330 core\n"
 "{\n"
 "color = ourColor;\n"
 "}\n\0";
+
+const GLchar* fragmentShaderSource3 = "#version 330 core\n"
+"out vec4 color;\n"
+"uniform vec4 ourColor;\n"
+"void main()\n"
+"{\n"
+"color = ourColor;\n"
+"}\n\0";
+
+
 
 
 int main(int argc, const char * argv[] ) {
@@ -164,7 +182,7 @@ int main(int argc, const char * argv[] ) {
     GLuint vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     //Next we attach the shader source code to the shader object and compile the shader:
-    glShaderSource(vertexShader, 1, &vertexShaderSource1, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSource2, NULL);
     glCompileShader(vertexShader);
     //check if the complication is sucessful
     GLint success;
@@ -201,144 +219,77 @@ int main(int argc, const char * argv[] ) {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     
-    
-    
-    // VAO
-    // Set up vertex data (and buffer(s)) and attribute pointers
-    // use element buffer object
-    // and use index drawing
-//    GLfloat vertices[] = {
-//        0.05f,  0.05f, 0.0f,  // Top Right
-//        0.05f, -0.05f, 0.0f,  // Bottom Right
-//        -0.05f, -0.05f, 0.0f,  // Bottom Left
-//        -0.05f,  0.05f, 0.0f   // Top Left
-//    };
-    
-//    GLfloat firstvertices[] {
-//       rec.firstPoint.x,rec.firstPoint.y,0.0f,
-//        rec.secondPoint.x,rec.secondPoint.y,0.0f,
-//        rec.thirdPoint.x,rec.thirdPoint.y,0.0f,
-//        rec.fouthPoint.x, rec.fouthPoint.y,0.0f,
-//    };
-//    
-//    
-//    GLfloat secondvertices[] {
-//        rec2.firstPoint.x,rec2.firstPoint.y,0.0f,
-//        rec2.secondPoint.x,rec2.secondPoint.y,0.0f,
-//        rec2.thirdPoint.x,rec2.thirdPoint.y,0.0f,
-//        rec2.fouthPoint.x, rec2.fouthPoint.y,0.0f,
-//    };
-//
-
-        GLfloat firstvertices[] {
-           rec.firstPoint.x,rec.firstPoint.y,0.0f,
-            rec.secondPoint.x,rec.secondPoint.y,0.0f,
-            rec.thirdPoint.x,rec.thirdPoint.y,0.0f,
-            rec.fouthPoint.x, rec.fouthPoint.y,0.0f,
-        };
-    
-    
-        GLfloat secondvertices[] {
-            rec2.firstPoint.x,rec2.firstPoint.y,0.0f,
-            rec2.secondPoint.x,rec2.secondPoint.y,0.0f,
-            rec2.thirdPoint.x,rec2.thirdPoint.y,0.0f,
-            rec2.fouthPoint.x, rec2.fouthPoint.y,0.0f,
-        };
-    
-//    
-//    GLfloat firstTriangle[] = {
-//        -0.9f, -0.5f, 0.0f,  // Left
-//        -0.0f, -0.5f, 0.0f,  // Right
-//        -0.45f, 0.5f, 0.0f,  // Top
-//    };
-//    GLfloat secondTriangle[] = {
-//        0.0f, -0.5f, 0.0f,  // Left
-//        0.9f, -0.5f, 0.0f,  // Right
-//        0.45f, 0.5f, 0.0f   // Top
-//    };
-    
     GLuint indices[] = {  // Note that we start from 0!
         0, 1, 3,   // First Triangle
         1, 2, 3    // Second Triangle
     };
     
     // setting up objects
-    GLuint VBOs[2],VAOs[2],EBOs[2];
-    glGenVertexArrays(2,VAOs); // Generate multiple VAOs
-    glGenBuffers(2,VBOs);
-    glGenBuffers(2,EBOs);
+    GLuint VBOs[RECNUM],VAOs[RECNUM],EBOs[RECNUM];
+    glGenVertexArrays(RECNUM,VAOs); // Generate multiple VAOs
+    glGenBuffers(RECNUM,VBOs);
+    glGenBuffers(RECNUM,EBOs);
     //===========================
     //First Rectangle
     //===========================
-    glBindVertexArray(VAOs[0]);
-    glBindBuffer(GL_ARRAY_BUFFER,VBOs[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(firstvertices), firstvertices, GL_STATIC_DRAW);
-    //EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
+//    glBindVertexArray(VAOs[0]);
+//    glBindBuffer(GL_ARRAY_BUFFER,VBOs[0]);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(firstvertices), firstvertices, GL_STATIC_DRAW);
+//    //EBO
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+//
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
+//    glEnableVertexAttribArray(0);
+//    glBindVertexArray(0);
     //===========================
     //Second Rectangle
     //===========================
-    glBindVertexArray(VAOs[1]);
-    glBindBuffer(GL_ARRAY_BUFFER,VBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(secondvertices), secondvertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-    
-    
-    
-    //
-//    GLuint VBO, VAO,EBO;
-//    glGenVertexArrays(1, &VAO);
-//    glGenBuffers(1, &VBO);
-//    glGenBuffers(1, &EBO);
-//    // Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
-//    glBindVertexArray(VAO);
-//    
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-//    
-//    GLuint EBO;
-//    
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+//    glBindVertexArray(VAOs[1]);
+//    glBindBuffer(GL_ARRAY_BUFFER,VBOs[1]);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(secondvertices), secondvertices, GL_STATIC_DRAW);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
 //    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-//    // Call to enable the function
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
 //    glEnableVertexAttribArray(0);
-//    
-//    glBindBuffer(GL_ARRAY_BUFFER, 0); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
-//    
-//    glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs)
+//    glBindVertexArray(0);
+    //===========================
+    //More Rectangles
+    //===========================
+    int counter = 0;
+    for(auto i = rectangles.begin();i!=rectangles.end();i++) {
+        
+        GLfloat vertices[] {
+            i->firstPoint.x,i->firstPoint.y,0.0f,
+            i->secondPoint.x,i->secondPoint.y,0.0f,
+            i->thirdPoint.x,i->thirdPoint.y,0.0f,
+            i->fouthPoint.x, i->fouthPoint.y,0.0f,
+        };
+        glBindVertexArray(VAOs[counter]);
+        glBindBuffer(GL_ARRAY_BUFFER,VBOs[counter]);
+        glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBOs[1]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+        glEnableVertexAttribArray(0);
+        glBindVertexArray(0);
+        counter++;
+//        cout << "test vertices built" << vertices[0] << vertices[1] << vertices[3] << endl;
+    }
     
-    //This is the gameloop? or render loop?
-//    while(!glfwWindowShouldClose(window)) {
-//        // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
-//        glfwPollEvents();
-//        //rendering commands here
-//        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-//        glClear(GL_COLOR_BUFFER_BIT);
-//        //test random color
-//        GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
-//        // Draw our first rectangle
-//        glUseProgram(shaderProgram);
-//        //random color.
-//        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-//        glBindVertexArray(VAO);
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    
+
+//    for(int i = 0; i <= RECNUM;i++) {
+//        glBindVertexArray(VAOs[i]);
+//        glBindBuffer(GL_ARRAY_BUFFER,VBOs[i]);
+//        glBufferData(GL_ARRAY_BUFFER,sizeof(firstvertices),firstvertices,GL_STATIC_DRAW);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBOs[1]);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
+//        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+//        glEnableVertexAttribArray(0);
 //        glBindVertexArray(0);
-//        // Swap the screen buffers
-//        glfwSwapBuffers(window); }
-//    
-    
-    
+//        
+//    }
     while(!glfwWindowShouldClose(window)) {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
@@ -350,15 +301,42 @@ int main(int argc, const char * argv[] ) {
         // Draw our first rectangle
         glUseProgram(shaderProgram);
         //random color.
-        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-            j++;
+//        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
+//            j++;
+//        
+        // Create transformations
+        glm::mat4 transform;
+//        transform = glm::translate(transform, glm::vec3(0.2f, -0.2f, 0.0f));
+//        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 5.0f,glm::vec3(0.0f, 0.0f,  -1.0f));
+//        transform = glm::scale(transform,glm::vec3(0.5f, 0.5f, 0.5f));
+    
+        // Get matrix's uniform location and set matrix
+        GLint transformLoc = glGetUniformLocation(shaderProgram, "transform");
         
-        glBindVertexArray(VAOs[0]);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-//        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-        glBindVertexArray(VAOs[1]);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //drawing multiple
+        for (int i = 0 ; i  < RECNUM ;i ++ ) {
+            if(i < RECNUM/2 +1) {
+                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 1.0f,glm::vec3(0.0f, 0.0f,  -1.0f));
+                 glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+            }
+            else {
+                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 1.0f,glm::vec3(0.0f, 0.0f,  1.0f));
+                 glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+            }
+            glUniform4f(vertexColorLocation,j[i].x,j[i].y,j[i].z,j[i].w);
+            glBindVertexArray(VAOs[i]);
+            glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
+        }
+        
+        // drawing process
+//        glBindVertexArray(VAOs[0]);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+////        glDrawArrays(GL_TRIANGLES, 0, 3);
+//        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
+//        glBindVertexArray(VAOs[1]);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         // Swap the screen buffers
         glfwSwapBuffers(window);
@@ -374,21 +352,6 @@ int main(int argc, const char * argv[] ) {
     glfwTerminate();
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
