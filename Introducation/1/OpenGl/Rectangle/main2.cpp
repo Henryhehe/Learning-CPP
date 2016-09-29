@@ -9,15 +9,17 @@
 
 #include "Basic.h"
 
-using namespace std;
 //declare functions and const parameters.
-//void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
-
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode);
 void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
 void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors);
+int start = 0;
 vector<glm::vec4> generateColor();
 
+//setting up constants
+const GLuint WIDTH = 640, HEIGHT = 640;
+const GLuint RECNUM = 50;
+const GLuint RECSIZE = 4;
 
 // this method will generate a random rectangle which is then stored in the data structure defined
 // in validRectangle
@@ -31,8 +33,8 @@ validRectangle generateRectanle() {
     float centreY = (generate_canonical<float, 3>(gen))*2 - 1;
     float height =  (generate_canonical<float, 3>(gen));
     float width =   (generate_canonical<float, 3>(gen));
-    float halfH = height/2;
-    float halfW = width/2;
+    float halfH = height/RECSIZE;
+    float halfW = width/RECSIZE;
     glm::vec3 centre = glm::vec3(centreX,centreY,0.0f);
     validRectangle rec;
     // the centre of the rectangle,height and width
@@ -50,9 +52,6 @@ validRectangle generateRectanle() {
     return rec;
 };
 
-//setting up constants
-const GLuint WIDTH = 1280, HEIGHT = 1280;
-const GLuint RECNUM = 50;
 
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     
@@ -61,9 +60,10 @@ void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+    if(key== GLFW_KEY_S && action == GLFW_PRESS) {
+        start = 1;
+    }
 }
-
-
 
 // generate rectangle numbers of random colors
 vector<glm::vec4> generateColor() {
@@ -114,9 +114,6 @@ const GLchar* fragmentShaderSource3 = "#version 330 core\n"
 "color = ourColor;\n"
 "}\n\0";
 
-
-
-
 int main(int argc, const char * argv[] ) {
     // setting up GLFW process
     glfwInit();
@@ -130,6 +127,7 @@ int main(int argc, const char * argv[] ) {
 
     //make the program listen to the key input
     glfwSetKeyCallback(window, key_exit);
+//    glfwSetKeyCallback(window, key_start);
 
     // Handle window not created successfully
     if(window == nullptr) {
@@ -165,13 +163,6 @@ int main(int argc, const char * argv[] ) {
     for(int i = RECNUM;i>=0;--i) {
         rectangles.push_back(generateRectanle());
     }
-//    for(auto j = rectangles.begin(); j!=rectangles.end();++j) {
-//        cout << "this is all the rectangles" << j->firstPoint.x << j->firstPoint.y << endl;
-//    }
-//    
-    validRectangle rec = rectangles[0];
-    validRectangle rec2 = rectangles[1];
-
     
     
     int width, height;
@@ -224,38 +215,12 @@ int main(int argc, const char * argv[] ) {
         1, 2, 3    // Second Triangle
     };
     
-    // setting up objects
+    // setting up buffer and attribute objects
     GLuint VBOs[RECNUM],VAOs[RECNUM],EBOs[RECNUM];
     glGenVertexArrays(RECNUM,VAOs); // Generate multiple VAOs
     glGenBuffers(RECNUM,VBOs);
     glGenBuffers(RECNUM,EBOs);
-    //===========================
-    //First Rectangle
-    //===========================
-//    glBindVertexArray(VAOs[0]);
-//    glBindBuffer(GL_ARRAY_BUFFER,VBOs[0]);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(firstvertices), firstvertices, GL_STATIC_DRAW);
-//    //EBO
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-//
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3* sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
-//    glEnableVertexAttribArray(0);
-//    glBindVertexArray(0);
-    //===========================
-    //Second Rectangle
-    //===========================
-//    glBindVertexArray(VAOs[1]);
-//    glBindBuffer(GL_ARRAY_BUFFER,VBOs[1]);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(secondvertices), secondvertices, GL_STATIC_DRAW);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);	// Vertex attributes stay the same
-//    glEnableVertexAttribArray(0);
-//    glBindVertexArray(0);
-    //===========================
-    //More Rectangles
-    //===========================
+    
     int counter = 0;
     for(auto i = rectangles.begin();i!=rectangles.end();i++) {
         
@@ -277,19 +242,9 @@ int main(int argc, const char * argv[] ) {
 //        cout << "test vertices built" << vertices[0] << vertices[1] << vertices[3] << endl;
     }
     
-    
-
-//    for(int i = 0; i <= RECNUM;i++) {
-//        glBindVertexArray(VAOs[i]);
-//        glBindBuffer(GL_ARRAY_BUFFER,VBOs[i]);
-//        glBufferData(GL_ARRAY_BUFFER,sizeof(firstvertices),firstvertices,GL_STATIC_DRAW);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBOs[1]);
-//        glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices),indices,GL_STATIC_DRAW);
-//        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-//        glEnableVertexAttribArray(0);
-//        glBindVertexArray(0);
-//        
-//    }
+    random_device rd;
+    mt19937 gen(rd());
+    float scale = (generate_canonical<float, 3>(gen));
     while(!glfwWindowShouldClose(window)) {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
@@ -312,81 +267,38 @@ int main(int argc, const char * argv[] ) {
     
         // Get matrix's uniform location and set matrix
         GLint transformLoc = glGetUniformLocation(shaderProgram, "transform");
+        //drawing multiples
         
-        //drawing multiple
         for (int i = 0 ; i  < RECNUM ;i ++ ) {
-            if(i < RECNUM/2 +1) {
-                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 1.0f,glm::vec3(0.0f, 0.0f,  -1.0f));
-                 glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-
+            scale = (generate_canonical<float, 3>(gen))/(GLfloat)glfwGetTime() ;
+            if(start) {
+            if(i < RECNUM/2+1) {
+                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.05f,glm::vec3(0.0f, 0.0f,  1.0f));
+                 transform = glm::scale_slow(transform,glm::vec3(1.0f,1.0f,0.5f));
             }
             else {
-                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 1.0f,glm::vec3(0.0f, 0.0f,  1.0f));
-                 glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-
+                GLfloat scaleAmount = sin(glfwGetTime());
+                transform = glm::scale(transform, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.1f,glm::vec3(0.0f, 0.0f,  -1.0f));
             }
+            }
+
+            glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
             glUniform4f(vertexColorLocation,j[i].x,j[i].y,j[i].z,j[i].w);
             glBindVertexArray(VAOs[i]);
             glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
         }
-        
-        // drawing process
-//        glBindVertexArray(VAOs[0]);
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-////        glDrawArrays(GL_TRIANGLES, 0, 3);
-//        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-//        glBindVertexArray(VAOs[1]);
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         // Swap the screen buffers
         glfwSwapBuffers(window);
     }
     
-    
-    
-    
     // Properly de-allocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(2, VAOs);
-    glDeleteBuffers(2, VBOs);
+    glDeleteVertexArrays(RECNUM, VAOs);
+    glDeleteBuffers(RECNUM, VBOs);
     // Terminate GLFW, clearing any resources allocated by GLFW.
     glfwTerminate();
     return 0;
-}
-
-
-
-
-
-//test starting method
-
-void key_start(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    if(key== GLFW_KEY_S && action == GLFW_PRESS) {
-        while(!glfwWindowShouldClose(window)) {
-            
-            
-    }
-        glfwSwapBuffers(window);
-
-}
-}
-
-void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors){
-    // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
-    glfwPollEvents();
-    //rendering commands here
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    //test random color
-    GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
-    // Draw our first rectangle
-    glUseProgram(shaderProgram);
-    //random color.
-    auto j = colors.begin();
-    glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    // Swap the screen buffers
 }
 
 

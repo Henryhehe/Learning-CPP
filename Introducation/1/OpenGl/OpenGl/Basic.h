@@ -19,11 +19,7 @@
 #include <random>
 #include <vector>
 
-struct validTriangle {
-    glm::vec3 x;
-    glm::vec3 y;
-    glm::vec3 z;
-};
+using namespace std;
 
 struct validRectangle {
     glm::vec3 centre;
