@@ -18,7 +18,7 @@ vector<glm::vec4> generateColor();
 
 //setting up constants
 const GLuint WIDTH = 640, HEIGHT = 640;
-const GLuint RECNUM = 50;
+const GLuint RECNUM = 25;
 const GLuint RECSIZE = 4;
 
 // this method will generate a random rectangle which is then stored in the data structure defined
@@ -273,13 +273,24 @@ int main(int argc, const char * argv[] ) {
             scale = (generate_canonical<float, 3>(gen))/(GLfloat)glfwGetTime() ;
             if(start) {
             if(i < RECNUM/2+1) {
-                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.05f,glm::vec3(0.0f, 0.0f,  1.0f));
-                 transform = glm::scale_slow(transform,glm::vec3(1.0f,1.0f,0.5f));
-            }
+                 GLfloat translateAmount = sin(glfwGetTime());
+                if(scale > 0.5) {
+                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  1.0f));}
+                else {
+                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  -1.0f));
+                }
+//                 transform = glm::scale_slow(transform,glm::vec3(1.0f,1.0f,0.5f));
+           }
             else {
                 GLfloat scaleAmount = sin(glfwGetTime());
+//                GLfloat translateAmount2 = sin(glfwGetTime());
                 transform = glm::scale(transform, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-                 transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.1f,glm::vec3(0.0f, 0.0f,  -1.0f));
+                if(scale > 0.5) {
+                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  1.0f));}
+                else {
+                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  -1.0f));
+                }
+//                 transform = glm::translate(transform, glm::vec3(translateAmount2,translateAmount2,translateAmount2));
             }
             }
 
@@ -287,6 +298,8 @@ int main(int argc, const char * argv[] ) {
             glUniform4f(vertexColorLocation,j[i].x,j[i].y,j[i].z,j[i].w);
             glBindVertexArray(VAOs[i]);
             glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
+            glm::mat4 transform;
+
         }
         glBindVertexArray(0);
         // Swap the screen buffers
