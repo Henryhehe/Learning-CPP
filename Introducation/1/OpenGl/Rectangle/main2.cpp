@@ -9,18 +9,7 @@
 
 #include "Basic.h"
 
-//declare functions and const parameters.
-void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode);
-void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
-void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors);
 int start = 0;
-vector<glm::vec4> generateColor();
-
-//setting up constants
-const GLuint WIDTH = 640, HEIGHT = 640;
-const GLuint RECNUM = 25;
-const GLuint RECSIZE = 4;
-
 // this method will generate a random rectangle which is then stored in the data structure defined
 // in validRectangle
 validRectangle generateRectanle() {
@@ -52,19 +41,20 @@ validRectangle generateRectanle() {
     return rec;
 };
 
-
+// Handle window opens and closes
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode) {
     
     // when a user presses the escape key, we set the windowShouldClose property to true
-    
     if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
     if(key== GLFW_KEY_S && action == GLFW_PRESS) {
-        start = 1;
+            start = 1;
+    }
+    if(key== GLFW_KEY_R && action == GLFW_PRESS) {
+        start = 0;
     }
 }
-
 // generate rectangle numbers of random colors
 vector<glm::vec4> generateColor() {
     random_device rd;
@@ -81,32 +71,17 @@ vector<glm::vec4> generateColor() {
     }
     return colors;
 }
-
-
 // Shaders
-const GLchar* vertexShaderSource1 = "#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"void main()\n"
-"{\n"
-"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-"}\0";
-
+// reverse * transform * vec4(position.x, position.y, position.z, 1.0);\n"
 const GLchar* vertexShaderSource2 = "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n"
 "uniform mat4 transform;\n"
+"uniform mat4 reverse;\n"
 "void main()\n"
 "{\n"
 "gl_Position = transform * vec4(position.x, position.y, position.z, 1.0);\n"
 "}\0";
 const GLchar* fragmentShaderSource2 = "#version 330 core\n"
-"out vec4 color;\n"
-"uniform vec4 ourColor;\n"
-"void main()\n"
-"{\n"
-"color = ourColor;\n"
-"}\n\0";
-
-const GLchar* fragmentShaderSource3 = "#version 330 core\n"
 "out vec4 color;\n"
 "uniform vec4 ourColor;\n"
 "void main()\n"
@@ -127,8 +102,6 @@ int main(int argc, const char * argv[] ) {
 
     //make the program listen to the key input
     glfwSetKeyCallback(window, key_exit);
-//    glfwSetKeyCallback(window, key_start);
-
     // Handle window not created successfully
     if(window == nullptr) {
         cout << "Failed to create a window" << endl;
@@ -147,24 +120,17 @@ int main(int argc, const char * argv[] ) {
     }
     
     //random colors vector
-    
     vector<glm::vec4> colors = generateColor();
-    
-    for(auto i = colors.begin();i!=colors.end();++i) {
-        cout << i->x << i->y << i->z << i->w << endl;
-    }
-    // test puporse for the gameloop
+    //color iterator
     auto j = colors.begin();
-    
-    // test case for the valid rectangle and store them in a vector;
-    
+    //randome rectangles vector
     vector<validRectangle> rectangles;
     rectangles.push_back(generateRectanle());
     for(int i = RECNUM;i>=0;--i) {
         rectangles.push_back(generateRectanle());
     }
     
-    
+
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
@@ -184,7 +150,6 @@ int main(int argc, const char * argv[] ) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-    
     //compile the fragmentShader
     GLuint fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -209,10 +174,10 @@ int main(int argc, const char * argv[] ) {
     // we can delete them after the link
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    
-    GLuint indices[] = {  // Note that we start from 0!
-        0, 1, 3,   // First Triangle
-        1, 2, 3    // Second Triangle
+    // draw indices
+    GLuint indices[] = {
+        0, 1, 3,
+        1, 2, 3
     };
     
     // setting up buffer and attribute objects
@@ -221,6 +186,7 @@ int main(int argc, const char * argv[] ) {
     glGenBuffers(RECNUM,VBOs);
     glGenBuffers(RECNUM,EBOs);
     
+    //generate rectangles store them into VAOs and VBOs
     int counter = 0;
     for(auto i = rectangles.begin();i!=rectangles.end();i++) {
         
@@ -239,12 +205,16 @@ int main(int argc, const char * argv[] ) {
         glEnableVertexAttribArray(0);
         glBindVertexArray(0);
         counter++;
-//        cout << "test vertices built" << vertices[0] << vertices[1] << vertices[3] << endl;
     }
+        vector<glm::mat4> transforms;
+      // generate random transform matrix for each rectangles and store them into a vector so
+      // that we'd be to change them and acess them
+    for(int j = 0 ; j < RECNUM;j++) {
+        glm::mat4 transform;
+        transforms.push_back(transform);
+    };
     
-    random_device rd;
-    mt19937 gen(rd());
-    float scale = (generate_canonical<float, 3>(gen));
+   //drawing process
     while(!glfwWindowShouldClose(window)) {
         // Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
@@ -252,54 +222,46 @@ int main(int argc, const char * argv[] ) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         //test random color
+        std::random_device rd; // obtain a random number from hardware
+        std::mt19937 eng(rd()); // seed the generator
+        std::uniform_int_distribution<> distr(1, 500);
+        std::uniform_int_distribution<> distr2(1, 500);// define the range
         GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
         // Draw our first rectangle
         glUseProgram(shaderProgram);
-        //random color.
-//        glUniform4f(vertexColorLocation,j->x,j->y,j->z,j->w);
-//            j++;
-//        
         // Create transformations
-        glm::mat4 transform;
-//        transform = glm::translate(transform, glm::vec3(0.2f, -0.2f, 0.0f));
-//        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 5.0f,glm::vec3(0.0f, 0.0f,  -1.0f));
-//        transform = glm::scale(transform,glm::vec3(0.5f, 0.5f, 0.5f));
-    
+        // glm::mat4 transform;
+        glm::mat4 reverse;
         // Get matrix's uniform location and set matrix
         GLint transformLoc = glGetUniformLocation(shaderProgram, "transform");
+        GLint reverseLoc = glGetUniformLocation(shaderProgram,"reverse");
         //drawing multiples
-        
         for (int i = 0 ; i  < RECNUM ;i ++ ) {
-            scale = (generate_canonical<float, 3>(gen))/(GLfloat)glfwGetTime() ;
             if(start) {
-            if(i < RECNUM/2+1) {
-                 GLfloat translateAmount = sin(glfwGetTime());
-                if(scale > 0.5) {
-                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  1.0f));}
-                else {
-                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  -1.0f));
+            glm::mat4 transform = transforms[i];
+                int xscale = distr(eng);
+                int yscale = distr2(eng);
+                if(i%2==0) {
+        transforms[i]=  glm::scale(transform,glm::vec3(1.0f - cos((GLfloat)glfwGetTime())/xscale/10,1.0f,1.0f));
+        transform = transforms[i];
+        transforms[i] = glm::rotate(transform,xscale*1.0f/50000,glm::vec3(yscale/100.0,yscale/100.0 ,sin(yscale/100.0)));
+        transform = transforms[i];
+        transforms[i] = glm::translate(transform, glm::vec3(cos(xscale)/50*sin(yscale/100),cos(xscale)/50*sin(yscale/100),cos(xscale)/100*sin(yscale/100)));
+                    
                 }
-//                 transform = glm::scale_slow(transform,glm::vec3(1.0f,1.0f,0.5f));
-           }
-            else {
-                GLfloat scaleAmount = sin(glfwGetTime());
-//                GLfloat translateAmount2 = sin(glfwGetTime());
-                transform = glm::scale(transform, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-                if(scale > 0.5) {
-                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  1.0f));}
                 else {
-                    transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 0.01f * i,glm::vec3(0.0f, 0.0f,  -1.0f));
+        transforms[i]=  glm::scale(transform,glm::vec3(1.0f,1.0f - cos((GLfloat)glfwGetTime())/xscale/10,1.0f));
+        transform = transforms[i];
+        transforms[i] = glm::rotate(transform,xscale*1.0f/50000,glm::vec3(-yscale/100.0,-yscale/100.0,-yscale/100.0));
+        transform = transforms[i];
+        transforms[i] = glm::translate(transform, glm::vec3(sin(xscale)/30*cos(yscale/40),sin(xscale)/20*cos(yscale/10),0.0f));
                 }
-//                 transform = glm::translate(transform, glm::vec3(translateAmount2,translateAmount2,translateAmount2));
             }
-            }
-
-            glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+            glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transforms[i]));
+            glUniformMatrix4fv(reverseLoc,1,GL_FALSE,glm::value_ptr(reverse));
             glUniform4f(vertexColorLocation,j[i].x,j[i].y,j[i].z,j[i].w);
             glBindVertexArray(VAOs[i]);
             glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
-            glm::mat4 transform;
-
         }
         glBindVertexArray(0);
         // Swap the screen buffers

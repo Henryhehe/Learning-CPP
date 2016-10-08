@@ -20,6 +20,15 @@
 #include <vector>
 
 using namespace std;
+//setting up constants
+const GLuint WIDTH = 640, HEIGHT = 640;
+const GLuint RECNUM = 40;
+const GLuint RECSIZE = 4;
+//declare functions and const parameters.
+void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode);
+void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
+void render(GLuint shaderProgram,GLuint VAO, vector<glm::vec4> colors);
+vector<glm::vec4> generateColor();
 
 struct validRectangle {
     glm::vec3 centre;
