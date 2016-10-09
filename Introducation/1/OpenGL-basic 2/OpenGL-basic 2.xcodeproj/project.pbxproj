@@ -14,6 +14,8 @@
 		F26F6D5F1D90F7C00034769D /* container.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F26F6D5E1D90F7C00034769D /* container.jpg */; };
 		F26F6D611D90F7CF0034769D /* awesome.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F26F6D601D90F7CF0034769D /* awesome.jpg */; };
 		F26F6D631D90FABC0034769D /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F26F6D621D90FABC0034769D /* GLKit.framework */; };
+		F2CF53A11DA905ED00571267 /* wall.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F2CF53A01DA905ED00571267 /* wall.jpg */; };
+		F2CF53A31DA910F100571267 /* a.dds in Resources */ = {isa = PBXBuildFile; fileRef = F2CF53A21DA910F100571267 /* a.dds */; };
 		F2ECA6D71D888658009B7197 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2ECA6D61D888658009B7197 /* main.cpp */; };
 		F2ECA6DE1D888695009B7197 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2ECA6DD1D888695009B7197 /* OpenGL.framework */; };
 		F2ECA6E01D88869A009B7197 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2ECA6DF1D88869A009B7197 /* GLUT.framework */; };
@@ -22,13 +24,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		F2ECA6D11D888658009B7197 /* CopyFiles */ = {
+		F2ECA6D11D888658009B7197 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -42,6 +45,8 @@
 		F26F6D5E1D90F7C00034769D /* container.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = container.jpg; sourceTree = "<group>"; };
 		F26F6D601D90F7CF0034769D /* awesome.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = awesome.jpg; sourceTree = "<group>"; };
 		F26F6D621D90FABC0034769D /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		F2CF53A01DA905ED00571267 /* wall.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = wall.jpg; path = ../../../../../Downloads/wall.jpg; sourceTree = "<group>"; };
+		F2CF53A21DA910F100571267 /* a.dds */ = {isa = PBXFileReference; lastKnownFileType = file; path = a.dds; sourceTree = "<group>"; };
 		F2ECA6D31D888658009B7197 /* OpenGL-basic 2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "OpenGL-basic 2"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2ECA6D61D888658009B7197 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		F2ECA6DD1D888695009B7197 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -71,6 +76,8 @@
 		F2ECA6CA1D888658009B7197 = {
 			isa = PBXGroup;
 			children = (
+				F2CF53A21DA910F100571267 /* a.dds */,
+				F2CF53A01DA905ED00571267 /* wall.jpg */,
 				F26F6D621D90FABC0034769D /* GLKit.framework */,
 				F26F6D601D90F7CF0034769D /* awesome.jpg */,
 				F26F6D5E1D90F7C00034769D /* container.jpg */,
@@ -115,7 +122,7 @@
 			buildPhases = (
 				F2ECA6CF1D888658009B7197 /* Sources */,
 				F2ECA6D01D888658009B7197 /* Frameworks */,
-				F2ECA6D11D888658009B7197 /* CopyFiles */,
+				F2ECA6D11D888658009B7197 /* Copy Files */,
 				F25867741D89BD63009E134E /* Resources */,
 			);
 			buildRules = (
@@ -163,6 +170,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2CF53A31DA910F100571267 /* a.dds in Resources */,
+				F2CF53A11DA905ED00571267 /* wall.jpg in Resources */,
 				F26F6D611D90F7CF0034769D /* awesome.jpg in Resources */,
 				F26F6D5F1D90F7C00034769D /* container.jpg in Resources */,
 				F26F6D5D1D90F6560034769D /* ProjectionShader.sd in Resources */,

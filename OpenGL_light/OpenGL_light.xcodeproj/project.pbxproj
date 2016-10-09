@@ -18,9 +18,9 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		F27AF0591DA42C5F00E20094 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 8;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
@@ -106,6 +106,7 @@
 				F27AF0571DA42C5F00E20094 /* Sources */,
 				F27AF0581DA42C5F00E20094 /* Frameworks */,
 				F27AF0591DA42C5F00E20094 /* CopyFiles */,
+				F2FD43D31DAA28CE0038319C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -146,6 +147,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F2FD43D31DAA28CE0038319C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F27AF0571DA42C5F00E20094 /* Sources */ = {

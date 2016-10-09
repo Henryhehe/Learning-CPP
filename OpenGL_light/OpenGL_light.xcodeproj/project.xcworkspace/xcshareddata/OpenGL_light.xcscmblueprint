@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "8B9F63AB35D6531AECB94B4B39EC31FD9989315C",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "8B9F63AB35D6531AECB94B4B39EC31FD9989315C" : 0,
+    "90EED7C84FA9BFAE5C15130A0B8A872C3FA47269" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "4A8FFDC2-A331-41D7-BAC1-74C5E21A17B2",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "8B9F63AB35D6531AECB94B4B39EC31FD9989315C" : "Learning-CPP\/",
+    "90EED7C84FA9BFAE5C15130A0B8A872C3FA47269" : "Learning-CPP\/Introducation\/1\/OpenGL-basic%202\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "OpenGL_light",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "OpenGL_light\/OpenGL_light.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/Henryhehe\/Learning-CPP.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "8B9F63AB35D6531AECB94B4B39EC31FD9989315C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/Henryhehe\/LearningOpenGL.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "90EED7C84FA9BFAE5C15130A0B8A872C3FA47269"
+    }
+  ]
+}
