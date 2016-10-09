@@ -7,6 +7,9 @@
 //
 
 #include <iostream>
+#include "main.h"
+#include "Shader.h"
+#include "Camera.h"
 
 int main(int argc, const char * argv[]) {
     // insert code here...
