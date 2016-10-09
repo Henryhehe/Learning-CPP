@@ -27,7 +27,7 @@ GLfloat lastY  =  HEIGHT / 2.0;
 bool    keys[1024];
 
 // Light attributes
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(1.2f, 1.0f, 3.0f);
 
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
@@ -44,9 +44,24 @@ const GLchar* vertexShaderSource2 = "#version 330 core\n"
 "{\n"
 "gl_Position = projection * view * model * vec4(position, 1.0f);\n"
 "}\0";
+
+const GLchar* vertexShaderSource3 = "#version 330 core\n"
+"layout (location = 0) in vec3 position;\n"
+"layout (location = 1) in vec3 normal;\n"
+"out vec3 Normal;\n"
+"out vec3 FragPos;\n"
+"uniform mat4 model;\n"
+"uniform mat4 view;\n"
+"uniform mat4 projection;\n"
+"void main()\n"
+"{\n"
+"gl_Position = projection * view * model * vec4(position, 1.0f);\n"
+"FragPos = vec3(model * vec4(position, 1.0f));\n"
+"Normal = mat3(transpose(inverse(model))) * normal;\n"
+"}\0";
+
 const GLchar* fragmentShaderSource2 = "#version 330 core\n"
 "out vec4 color;\n"
-
 "uniform vec3 objectColor;\n"
 "uniform vec3 lightColor;\n"
 "void main()\n"
@@ -54,11 +69,55 @@ const GLchar* fragmentShaderSource2 = "#version 330 core\n"
 "color = vec4(lightColor * objectColor, 1.0f);\n"
 "}\0";
 
+const GLchar* fragmentLight = "#version 330 core\n"
+"out vec4 color;\n"
+"in vec3 Normal;\n"
+"in vec3 FragPos;\n"
+"uniform vec3 lightPos;\n"
+"uniform vec3 objectColor;\n"
+"uniform vec3 lightColor;\n"
+"void main()\n"
+"{\n"
+"float ambientStrength = 0.1f;\n"
+"vec3 ambient = ambientStrength * lightColor;\n"
+"vec3 norm = normalize(Normal);\n"
+"vec3 lightDir = normalize(lightPos - FragPos);\n"
+"float diff = max(dot(norm, lightDir), 0.0);\n"
+"vec3 diffuse = diff * lightColor;\n"
+"vec3 result = (ambient + diffuse) * objectColor;\n"
+"color = vec4(result, 1.0f);\n"
+"}\0";
+
+const GLchar* fragmentLight2 = "#version 330 core\n"
+"out vec4 color;\n"
+"in vec3 Normal;\n"
+"in vec3 FragPos;\n"
+"uniform vec3 viewPos;\n"
+"uniform vec3 lightPos;\n"
+"uniform vec3 objectColor;\n"
+"uniform vec3 lightColor;\n"
+"void main()\n"
+"{\n"
+"float ambientStrength = 0.2f;\n"
+"vec3 ambient = ambientStrength * lightColor;\n"
+"vec3 norm = normalize(Normal);\n"
+"vec3 lightDir = normalize(lightPos - FragPos);\n"
+"float diff = max(dot(norm, lightDir), 0.0);\n"
+"vec3 diffuse = diff * lightColor;\n"
+"float specularStrength = 0.5f;\n"
+"vec3 viewDir = normalize(viewPos - FragPos);\n"
+"vec3 reflectDir = reflect(-lightDir, norm);\n"
+"float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);\n"
+"vec3 specular = specularStrength * spec * lightColor;\n"
+"vec3 result = (ambient + diffuse+ specular) * objectColor;\n"
+"color = vec4(result, 1.0f);\n"
+"}\0";
+
 const GLchar* fragmentShaderSource3 = "#version 330 core\n"
 "out vec4 color;\n"
 "void main()\n"
 "{\n"
-"color = vec4(1.0f);\n"
+"color = vec4(0.9f);\n"
 "}\0";
 
 int main(int argc, const char * argv[]) {
@@ -112,12 +171,12 @@ int main(int argc, const char * argv[]) {
     GLuint vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     //Next we attach the shader source code to the shader object and compile the shader:
-    glShaderSource(vertexShader, 1, &vertexShaderSource2, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSource3, NULL);
     glCompileShader(vertexShader);
     
     GLuint LightingShader;
     LightingShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(LightingShader,1,&fragmentShaderSource2,NULL);
+    glShaderSource(LightingShader,1,&fragmentLight2,NULL);
     glCompileShader(LightingShader);
     // Shader Program
     GLuint LightingProgram;
@@ -159,7 +218,7 @@ int main(int argc, const char * argv[]) {
     
     
     // Set up vertex data (and buffer(s)) and attribute pointers
-    GLfloat vertices[] = {
+    GLfloat vertices2[] = {
         -0.5f, -0.5f, -0.5f,
         0.5f, -0.5f, -0.5f,
         0.5f,  0.5f, -0.5f,
@@ -202,32 +261,87 @@ int main(int argc, const char * argv[]) {
         -0.5f,  0.5f,  0.5f,
         -0.5f,  0.5f, -0.5f
     };
+    
+    // Set up vertex data (and buffer(s)) and attribute pointers
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    };
     // First, set the container's VAO (and VBO)
-    GLuint VBO, containerVAO;
+    GLuint VBO, containerVAO,VBO2;
     glGenVertexArrays(1, &containerVAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &VBO2);
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
     glBindVertexArray(containerVAO);
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    // Position attribute and normal
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+    
+    // Normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
     glBindVertexArray(0);
     
     // Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
     GLuint lightVAO;
     glGenVertexArrays(1, &lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
     glBindVertexArray(lightVAO);
     // We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
     // Set the vertex attributes (only position data for the lamp))
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
     
     // Game loop
+    GLint viewPosLoc = glGetUniformLocation(LightingProgram, "viewPos");
+    glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+  
     while (!glfwWindowShouldClose(window))
     {
         // Calculate deltatime of current frame
@@ -240,13 +354,15 @@ int main(int argc, const char * argv[]) {
         do_movement();
         
         // Clear the colorbuffer
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // Use cooresponding shader when setting uniforms/drawing objects
         glUseProgram(LightingProgram);
         GLint objectColorLoc = glGetUniformLocation(LightingProgram, "objectColor");
         GLint lightColorLoc  = glGetUniformLocation(LightingProgram, "lightColor");
+        GLint lightPosLoc = glGetUniformLocation(LightingProgram, "lightPos");
+        glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
         glUniform3f(lightColorLoc,  1.0f, 0.5f, 1.0f);
         
@@ -280,11 +396,11 @@ int main(int argc, const char * argv[]) {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
         model = glm::mat4();
         model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+        model = glm::scale(model, glm::vec3(0.5f)); // Make it a smaller cube
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         // Draw the light object (using light's vertex attributes)
         glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 40);
         glBindVertexArray(0);
         
         // Swap the screen buffers
