@@ -27,7 +27,7 @@ GLfloat lastY  =  HEIGHT / 2.0;
 bool    keys[1024];
 
 // Light attributes
-glm::vec3 lightPos(1.2f, 1.0f, 3.0f);
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
@@ -113,6 +113,41 @@ const GLchar* fragmentLight2 = "#version 330 core\n"
 "color = vec4(result, 1.0f);\n"
 "}\0";
 
+const GLchar* fragmentLight3 = "#version 330 core\n"
+"struct Material {\n"
+"vec3 ambient;\n"
+"vec3 diffuse;\n"
+"vec3 specular;\n"
+"float shininess;\n"
+"};\n"
+"struct Light { \n"
+"vec3 position;\n"
+"vec3 ambient;\n"
+"vec3 diffuse;\n"
+"vec3 specular;\n"
+"};\n"
+
+"out vec4 color;\n"
+"in vec3 Normal;\n"
+"in vec3 FragPos;\n"
+"uniform vec3 viewPos;\n"
+"uniform Light light;\n"
+"uniform Material material;\n"
+"void main()\n"
+"{\n"
+"vec3 ambient = light.ambient * material.ambient;\n"
+"vec3 norm = normalize(Normal);\n"
+"vec3 lightDir = normalize(light.position - FragPos);\n"
+"float diff = max(dot(norm, lightDir), 0.0);\n"
+"vec3 diffuse = light.diffuse * (diff * material.diffuse);\n"
+"vec3 viewDir = normalize(viewPos - FragPos);\n"
+"vec3 reflectDir = reflect(-lightDir, norm);\n"
+"float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);\n"
+"vec3 specular = light.specular * (spec * material.specular);\n"
+"vec3 result = ambient + diffuse + specular;\n"
+"color = vec4(result, 1.0f);\n"
+"}\0";
+
 const GLchar* fragmentShaderSource3 = "#version 330 core\n"
 "out vec4 color;\n"
 "void main()\n"
@@ -176,7 +211,7 @@ int main(int argc, const char * argv[]) {
     
     GLuint LightingShader;
     LightingShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(LightingShader,1,&fragmentLight2,NULL);
+    glShaderSource(LightingShader,1,&fragmentLight3,NULL);
     glCompileShader(LightingShader);
     // Shader Program
     GLuint LightingProgram;
@@ -359,14 +394,34 @@ int main(int argc, const char * argv[]) {
         
         // Use cooresponding shader when setting uniforms/drawing objects
         glUseProgram(LightingProgram);
-        GLint objectColorLoc = glGetUniformLocation(LightingProgram, "objectColor");
-        GLint lightColorLoc  = glGetUniformLocation(LightingProgram, "lightColor");
+     
         GLint lightPosLoc = glGetUniformLocation(LightingProgram, "lightPos");
         glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-        glUniform3f(lightColorLoc,  1.0f, 0.5f, 1.0f);
         
+        // Set lights properties
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+        
+        glm::vec3 diffuseColor = lightColor * glm::vec3(2.5f); // Decrease the influence
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(2.2f); // Low influence
+        glUniform3f(glGetUniformLocation(LightingProgram, "light.ambient"),  ambientColor.x, ambientColor.y, ambientColor.z);
+        glUniform3f(glGetUniformLocation(LightingProgram, "light.diffuse"),  diffuseColor.x, diffuseColor.y, diffuseColor.z);
+        glUniform3f(glGetUniformLocation(LightingProgram, "light.specular"), 1.0f, 1.0f, 1.0f);
+        
+        GLint matAmbientLoc  = glGetUniformLocation(LightingProgram, "material.ambient");
+        GLint matDiffuseLoc  = glGetUniformLocation(LightingProgram, "material.diffuse");
+        GLint matSpecularLoc = glGetUniformLocation(LightingProgram, "material.specular");
+        GLint matShineLoc    = glGetUniformLocation(LightingProgram, "material.shininess");
+        
+        glUniform3f(matAmbientLoc,  1.0f, 0.5f, 0.31f);
+        glUniform3f(matDiffuseLoc,   1.0f, 0.5f, 0.31f);
+        glUniform3f(matSpecularLoc,  0.5f, 0.5f, 0.5f);
+        glUniform1f(matShineLoc,    32.0f);
         // Create camera transformations
+        
+        
         glm::mat4 view;
         view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
