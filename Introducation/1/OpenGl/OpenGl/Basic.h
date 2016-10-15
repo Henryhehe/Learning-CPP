@@ -21,9 +21,9 @@
 
 using namespace std;
 //setting up constants
-const GLuint WIDTH = 640, HEIGHT = 640;
-const GLuint RECNUM = 40;
-const GLuint RECSIZE = 4;
+const GLuint WIDTH = 1280, HEIGHT = 1280;
+const GLuint RECNUM = 10000;
+const GLuint RECSIZE = 25;
 //declare functions and const parameters.
 void key_exit(GLFWwindow* window, int key, int scancode,int action,int mode);
 void key_start(GLFWwindow* window, int key, int scancode, int action, int mode);
