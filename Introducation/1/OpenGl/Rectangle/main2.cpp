@@ -62,9 +62,9 @@ vector<glm::vec4> generateColor() {
     float r,g,b,z;
     mt19937 gen(rd());
     for(int n = 0 ; n < RECNUM ; ++n) {
-        r = (generate_canonical<float, 3>(gen));
+        r = (generate_canonical<float, 3>(gen)) + 0.5;
         g = (generate_canonical<float, 3>(gen));
-        b = (generate_canonical<float, 3>(gen));
+        b = (generate_canonical<float, 3>(gen)) + 0.5;
         z = (generate_canonical<float, 3>(gen));
     glm::vec4 color = glm::vec4(r,g,b,z);
         colors.push_back(color);
@@ -176,25 +176,42 @@ int main(int argc, const char * argv[] ) {
     glDeleteShader(fragmentShader);
     // draw indices
     GLuint indices[] = {
-        0, 1, 3,
+        0, 2, 3,
         1, 2, 3
     };
     
+//        GLuint indices[] = {
+//            3, 3, 2,
+//            1, 2, 3
+//        };
+    
+
+//    
     // setting up buffer and attribute objects
     GLuint VBOs[RECNUM],VAOs[RECNUM],EBOs[RECNUM];
     glGenVertexArrays(RECNUM,VAOs); // Generate multiple VAOs
     glGenBuffers(RECNUM,VBOs);
     glGenBuffers(RECNUM,EBOs);
+    //testing more random
+    std::random_device rd2; // obtain a random number from hardware
+    std::mt19937 eng(rd2()); // seed the generator
+    std::uniform_real_distribution<> distr_1(-0.25, 0.25);
+    std::uniform_real_distribution<> distr_2(-0.25, 0.25 );// define the range
+    float xChange = distr_1(eng);
+    float yChange = distr_2(eng);
+    float zChange = distr_1(eng);
+    float wChange = distr_1(eng);
     
     //generate rectangles store them into VAOs and VBOs
     int counter = 0;
     for(auto i = rectangles.begin();i!=rectangles.end();i++) {
-        
+    //originally z should be 1.0f but now we're making it random
+    // and the x and y is just the point values
         GLfloat vertices[] {
-            i->firstPoint.x,i->firstPoint.y,0.0f,
-            i->secondPoint.x,i->secondPoint.y,0.0f,
-            i->thirdPoint.x,i->thirdPoint.y,0.0f,
-            i->fouthPoint.x, i->fouthPoint.y,0.0f,
+            i->firstPoint.x + xChange,i->firstPoint.y + xChange,xChange,
+            i->secondPoint.x + yChange,i->secondPoint.y + yChange,yChange,
+            i->thirdPoint.x + zChange,i->thirdPoint.y + zChange,zChange,
+            i->fouthPoint.x + wChange, i->fouthPoint.y + wChange,wChange,
         };
         glBindVertexArray(VAOs[counter]);
         glBindBuffer(GL_ARRAY_BUFFER,VBOs[counter]);
@@ -224,8 +241,8 @@ int main(int argc, const char * argv[] ) {
         //test random color
         std::random_device rd; // obtain a random number from hardware
         std::mt19937 eng(rd()); // seed the generator
-        std::uniform_int_distribution<> distr(1, 500);
-        std::uniform_int_distribution<> distr2(1, 500);// define the range
+        std::uniform_int_distribution<> distr(1, 2000);
+        std::uniform_int_distribution<> distr2(1, 2000);// define the range
         GLint vertexColorLocation = glGetUniformLocation(shaderProgram,"ourColor");
         // Draw our first rectangle
         glUseProgram(shaderProgram);
